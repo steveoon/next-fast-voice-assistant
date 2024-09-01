@@ -10,9 +10,11 @@
 
 ## 部署
 
-一键部署到 Vercel, 点击下面的按钮即可
+⚠️ 一些限制：
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FsteveoOn%2Fnext-fast-voice-assistant.git&env=DEEPGRAM_API_KEY,CEREBRAS_API_KEY,CARTESIA_API_KEY&envDescription=API%20keys%20for%20Deepgram%2C%20Cerebras%2C%20and%20Cartesia&envLink=https%3A%2F%2Fdocs.cartesia.ai%2F%23%2Fgetting-started%2Fsetting-up-api-keys&project-name=next-fast-voice-assistant&repo-name=next-fast-voice-assistant)
+- 本项目由于用到 `onnxruntime-node` 依赖，所以目前需要在`next.config.js`中添加 `externals` 配置，将 `onnxruntime-node` 配置为 `commonjs onnxruntime-node`。
+- 当然这也带来 Serverless 部署的问题，目前由于服务器大小的限制（250MB），在构建时`onnxruntime-node`大小超过 500MB，所以无法部署为 Serverless 函数。
+- 建议使用传统的方式部署，或者如果你找到了更好的办法，欢迎提交 PR。
 
 ## 主要特性
 
