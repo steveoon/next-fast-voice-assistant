@@ -1,1 +1,1 @@
-export * from "./voice-messages";
+export * from "./voice-assistant";
