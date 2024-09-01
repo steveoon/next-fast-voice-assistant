@@ -1,8 +1,9 @@
-# AI 语音助手 API
+# NEXT FAST VOICE ASSISTANT API
 
 ## 项目简介
 
-这个项目是[fast-voice-assistant](https://github.com/dsa/fast-voice-assistant.git)的 Typescript 版本.
+这个项目是[fast-voice-assistant](https://github.com/dsa/fast-voice-assistant.git)的 Typescript 版本。
+
 **特点: 就一个字, 快!🚀, 建议使用 WebRTC 传输音频流, 这样延迟更低。**
 
 实现并集成了 OpenAPI, 一个高度可定制的 AI 语音助手，集成了最先进的语音识别（STT）、自然语言处理（NLP）和语音合成（TTS）技术。它提供了一个简单而强大的接口，可以轻松地将语音交互功能集成到各种应用程序中。
