@@ -96,7 +96,12 @@ curl -X POST https://your-api-url/api/voice-assistant \
 ### 使用 cURL 发送 GET 请求
 
 ```bash
-curl "https://your-api-url/api/voice-assistant?message=How%20are%20you%20today?&language=en-US&ttsVoiceId=some-voice-id"
+curl -G "http://localhost:3000/api/voice-assistant" \
+     --data-urlencode "message=Next Fast Voice Assistant简直太快太方便了吧？" \
+     --data-urlencode "language=zh" \
+     --data-urlencode "sttModel=nova-2" \
+     --data-urlencode "llama-3.1-8b-instant3" \
+     --data-urlencode "ttsVoiceId=eda5bbff-1ff1-4886-8ef1-4e69a77640a0" | ffmpeg -f f32le -ar 44100 -ac 1 -i pipe: voice.wav
 ```
 
 ## 项目优势
