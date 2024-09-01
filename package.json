@@ -10,9 +10,11 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^0.0.54",
     "@cerebras/cerebras_cloud_sdk": "^1.0.1",
     "@deepgram/sdk": "^3.6.0",
     "@ricky0123/vad": "^0.2.4",
+    "ai": "^3.3.21",
     "axios": "^1.7.7",
     "next": "14.2.7",
     "onnxruntime-node": "^1.19.0",

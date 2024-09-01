@@ -1,18 +1,24 @@
 import { createClient } from "@deepgram/sdk";
-import Cerebras from "@cerebras/cerebras_cloud_sdk";
+// import Cerebras from "@cerebras/cerebras_cloud_sdk";
 import axios from "axios";
-import { NonRealTimeVAD } from "@ricky0123/vad";
+import { NonRealTimeVAD } from "@ricky0123/vad/dist/index.node";
 import { Message } from "@/types";
+import { generateText } from "ai";
+import { getGroq } from "../llm-provider";
 
 // 初始化服务
 const deepgram = createClient(process.env.DEEPGRAM_API_KEY!);
-const cerebras = new Cerebras({ apiKey: process.env.CEREBRAS_API_KEY });
+// const cerebras = new Cerebras({ apiKey: process.env.CEREBRAS_API_KEY });
+const groq = getGroq();
 let vad: NonRealTimeVAD;
 
 // 异步初始化VAD
-(async () => {
-  vad = await NonRealTimeVAD.new();
-})();
+if (typeof window === "undefined") {
+  (async () => {
+    const { NonRealTimeVAD } = await import("@ricky0123/vad/dist/index.node");
+    vad = await NonRealTimeVAD.new();
+  })();
+}
 
 export class VoiceAssistant {
   private chatContext: Message[] = [
@@ -23,7 +29,7 @@ export class VoiceAssistant {
     },
   ];
 
-  async processAudio(audioBuffer: Buffer): Promise<Buffer> {
+  async processAudio(audioBuffer: Buffer): Promise<ArrayBuffer> {
     // VAD 检测
     const audioFloat32 = new Float32Array(audioBuffer.buffer);
     const sampleRate = 16000; // 假设音频采样率为 16kHz，如果不是，请调整
@@ -59,31 +65,44 @@ export class VoiceAssistant {
   }
 
   private async generateResponse(input: string): Promise<string> {
-    this.chatContext.push({ role: "user", content: input });
-    const completion = await cerebras.chat.completions.create({
-      messages: this.chatContext.map((message) => ({
-        role: message.role as "system" | "user" | "assistant",
-        content: message.content,
-      })),
-      model: "llama3.1-8b",
+    // this.chatContext.push({ role: "user", content: input });
+    // const completion = await cerebras.chat.completions.create({
+    //   messages: this.chatContext.map((message) => ({
+    //     role: message.role as "system" | "user" | "assistant",
+    //     content: message.content,
+    //   })),
+    //   model: "llama3.1-8b",
+    // });
+    // const response = completion.choices[0].message.content ?? "";
+    // this.chatContext.push({ role: "assistant", content: response });
+    // return response;
+    const { text } = await generateText({
+      model: groq("llama-3.1-8b-instant"),
+      system: this.chatContext[0].content,
+      prompt: input,
+      temperature: 0.9,
+      maxTokens: 700,
     });
-    const response = completion.choices[0].message.content ?? "";
-    this.chatContext.push({ role: "assistant", content: response });
-    return response;
+    return text;
   }
 
-  private async synthesizeSpeech(text: string): Promise<Buffer> {
+  private async synthesizeSpeech(text: string): Promise<ArrayBuffer> {
     const response = await axios.post(
       "https://api.cartesia.ai/tts/bytes",
       {
         transcript: text,
-        model_id: "sonic-english",
-        voice: { mode: "id", id: "a0e99841-438c-4a64-b679-ae501e7d6091" },
+        model_id: "sonic-multilingual",
+        voice: { mode: "id", id: "0b904166-a29f-4d2e-bb20-41ca302f98e9" },
+        __experimental_controls: {
+          speed: "slow",
+          emotion: ["positivity:high", "curiosity"],
+        },
         output_format: {
           container: "raw",
           encoding: "pcm_f32le",
           sample_rate: 44100,
         },
+        language: "zh",
       },
       {
         headers: {
@@ -94,10 +113,10 @@ export class VoiceAssistant {
         responseType: "arraybuffer",
       }
     );
-    return Buffer.from(response.data);
+    return response.data;
   }
 
-  async say(message: string): Promise<Buffer> {
+  async say(message: string): Promise<ArrayBuffer> {
     return await this.synthesizeSpeech(message);
   }
 }
