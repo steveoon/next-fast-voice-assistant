@@ -10,7 +10,14 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const audioBuffer = Buffer.from(data.audio, "base64");
+    let audioBuffer = Buffer.from(data.audio, "base64");
+
+    // 确保 audioBuffer 的长度是 4 的倍数
+    if (audioBuffer.length % 4 !== 0) {
+      const padding = 4 - (audioBuffer.length % 4);
+      audioBuffer = Buffer.concat([audioBuffer, Buffer.alloc(padding)]);
+    }
+
     const response = await assistant.processAudio(audioBuffer);
     return new NextResponse(response, {
       headers: {

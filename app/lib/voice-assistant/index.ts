@@ -31,7 +31,11 @@ export class VoiceAssistant {
 
   async processAudio(audioBuffer: Buffer): Promise<ArrayBuffer> {
     // VAD 检测
-    const audioFloat32 = new Float32Array(audioBuffer.buffer);
+    const audioFloat32 = new Float32Array(
+      audioBuffer.buffer,
+      audioBuffer.byteOffset,
+      audioBuffer.byteLength / 4
+    );
     const sampleRate = 16000; // 假设音频采样率为 16kHz，如果不是，请调整
     let speechDetected = false;
 
@@ -44,7 +48,7 @@ export class VoiceAssistant {
       break;
     }
 
-    if (!speechDetected) return Buffer.from("");
+    if (!speechDetected) return new ArrayBuffer(0);
 
     // STT 转录
     const transcription = await this.transcribe(audioBuffer);
@@ -57,11 +61,24 @@ export class VoiceAssistant {
   }
 
   private async transcribe(audioBuffer: Buffer): Promise<string> {
-    const response = await deepgram.transcription.preRecorded(
-      { buffer: audioBuffer },
-      { punctuate: true }
-    );
-    return response.results.channels[0].alternatives[0].transcript;
+    try {
+      const options = {
+        model: "nova-2",
+        smart_format: true,
+        language: "zh-CN",
+        mimetype: "audio/wav",
+      };
+
+      const { result } = await deepgram.listen.prerecorded.transcribeFile(
+        audioBuffer,
+        options
+      );
+
+      return result?.results?.channels[0]?.alternatives[0]?.transcript || "";
+    } catch (err) {
+      console.error("转录失败:", err);
+      throw err;
+    }
   }
 
   private async generateResponse(input: string): Promise<string> {
