@@ -1,36 +1,152 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# AI 语音助手 API
 
-## Getting Started
+## 项目简介
 
-First, run the development server:
+这个项目是[fast-voice-assistant](https://github.com/dsa/fast-voice-assistant.git)的 Typescript 版本实现并集成了 OpenAPI, 一个高度可定制的 AI 语音助手，集成了最先进的语音识别（STT）、自然语言处理（NLP）和语音合成（TTS）技术。它提供了一个简单而强大的接口，可以轻松地将语音交互功能集成到各种应用程序中。
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 部署
+
+一键部署到 Vercel, 点击下面的按钮即可
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FsteveoOn%2Fnext-fast-voice-assistant.git&env=DEEPGRAM_API_KEY,CEREBRAS_API_KEY,CARTESIA_API_KEY&envDescription=API%20keys%20for%20Deepgram%2C%20Cerebras%2C%20and%20Cartesia&envLink=https%3A%2F%2Fdocs.cartesia.ai%2F%23%2Fgetting-started%2Fsetting-up-api-keys&project-name=next-fast-voice-assistant&repo-name=next-fast-voice-assistant)
+
+## 主要特性
+
+- **语音活动检测（VAD）**：使用高效的算法精确识别语音输入。
+- **语音转文字（STT）**：采用 Deepgram 的先进模型进行准确的语音转录。
+- **自然语言处理（NLP）**：利用强大的语言模型（如 GPT）生成智能响应。
+- **文字转语音（TTS）**：使用 Cartesia 的高质量语音合成技术。
+- **高度可定制**：支持多语言、多种模型选择，以及灵活的配置选项。
+- **简单集成**：提供简洁的 RESTful API，易于集成到各种应用中。
+
+## 技术栈
+
+- Next.js 14 (App Router)
+- TypeScript
+- Deepgram STT
+- GPT/GROQ 语言模型
+- Cartesia TTS
+- @ricky0123/vad 用于语音活动检测
+
+## API 使用指南
+
+### POST /api/voice-assistant
+
+处理音频输入并返回语音响应。
+
+#### 请求体
+
+```json
+{
+  "audio": "base64_encoded_audio_data",
+  "config": {
+    "language": "zh",
+    "sttModel": "nova-2",
+    "llmModel": "llama-3.1-8b-instant",
+    "ttsVoiceId": "voice-id"
+  }
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- `audio`: Base64 编码的音频数据（必需）
+- `config`: 可选的配置对象
+  - `language`: 语言代码（可选，默认为 "zh"）这里的国际化语言代码使用的格式是 [BCP 47](https://en.wikipedia.org/wiki/IETF_language_tag)
+  - `sttModel`: 语音转文字模型（可选）参考[Deepgram 的 Models](https://developers.deepgram.com/docs/models)
+  - `llmModel`: 语言模型（可选）使用[Groq](https://docs.groq.com/llm-models)的模型
+  - `ttsVoiceId`: 文字转语音的声音 ID（可选）可以参考[Cartesia 的 Voices](https://cartesia.ai/docs/api/tts/voices)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+#### 响应
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+返回 WAV 格式的音频数据。
 
-## Learn More
+### GET /api/voice-assistant
 
-To learn more about Next.js, take a look at the following resources:
+生成语音问候。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+#### 查询参数
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- `message`: 要转换为语音的文本（可选，默认为 "你好，今天过得怎么样？"）
+- `language`: 语言代码（可选）
+- `sttModel`: 语音转文字模型（可选）
+- `llmModel`: 语言模型（可选）
+- `ttsVoiceId`: 文字转语音的声音 ID（可选）
 
-## Deploy on Vercel
+#### 响应
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+返回 WAV 格式的音频数据。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## 使用示例
+
+### 使用 cURL 发送 POST 请求
+
+```bash
+curl -X POST https://your-api-url/api/voice-assistant \
+  -H "Content-Type: application/json" \
+  -d '{
+    "audio": "base64_encoded_audio_data",
+    "config": {
+      "language": "en-US",
+      "sttModel": "nova-2",
+      "llmModel": "llama-3.1-8b-instant",
+      "ttsVoiceId": "some-voice-id"
+    }
+  }'
+```
+
+### 使用 cURL 发送 GET 请求
+
+```bash
+curl "https://your-api-url/api/voice-assistant?message=How%20are%20you%20today?&language=en-US&ttsVoiceId=some-voice-id"
+```
+
+## 项目优势
+
+1. **高度灵活**：支持多种语言和模型，可以根据不同需求进行定制。
+2. **性能优越**：使用最新的 AI 技术，提供快速、准确的语音交互体验。
+3. **易于集成**：简单的 API 设计使其容易集成到各种应用中。
+4. **可扩展性强**：模块化设计允许轻松添加新功能或替换现有组件。
+5. **实时处理**：支持实时语音输入和响应。
+6. **安全可靠**：采用严格的错误处理和安全措施。
+
+## 部署
+
+1. 克隆仓库：
+
+   ```
+   git clone https://github.com/steveoOn/next-fast-voice-assistant.git
+   ```
+
+2. 安装依赖：
+
+   ```
+   pnpm install
+   ```
+
+3. 设置环境变量（在 `.env.local` 文件中）：
+
+   ```
+   DEEPGRAM_API_KEY=your_deepgram_key
+   CEREBRAS_API_KEY=your_cerebras_key
+   CARTESIA_API_KEY=your_cartesia_key
+   ```
+
+   参考 [.env.example](./.env.example) 文件来创建你自己的环境变量文件.
+
+4. 运行开发服务器：
+
+   ```
+   pnpm dev
+   ```
+
+5. 构建生产版本：
+   ```
+   pnpm build
+   ```
+
+## 贡献
+
+欢迎贡献！请查看 [CONTRIBUTING.md](CONTRIBUTING.md) 了解如何开始。
+
+## 许可证
+
+本项目采用 [MIT 许可证](LICENSE)。
