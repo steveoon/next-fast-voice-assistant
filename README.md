@@ -52,8 +52,8 @@
 - `config`: 可选的配置对象
   - `language`: 语言代码（可选，默认为 "zh"）这里的国际化语言代码使用的格式是 [BCP 47](https://en.wikipedia.org/wiki/IETF_language_tag)
   - `sttModel`: 语音转文字模型（可选）参考[Deepgram 的 Models](https://developers.deepgram.com/docs/models)
-  - `llmModel`: 语言模型（可选）使用[Groq](https://docs.groq.com/llm-models)的模型
-  - `ttsVoiceId`: 文字转语音的声音 ID（可选）可以参考[Cartesia 的 Voices](https://cartesia.ai/docs/api/tts/voices)
+  - `llmModel`: 语言模型（可选）使用[Groq](https://console.groq.com/docs/models)的模型
+  - `ttsVoiceId`: 文字转语音的声音 ID（可选）可以参考[Cartesia 的 Voices](https://play.cartesia.ai/library)
 
 #### 响应
 
@@ -85,12 +85,22 @@ curl -X POST https://your-api-url/api/voice-assistant \
   -d '{
     "audio": "base64_encoded_audio_data",
     "config": {
-      "language": "en-US",
+      "language": "en",
       "sttModel": "nova-2",
       "llmModel": "llama-3.1-8b-instant",
-      "ttsVoiceId": "some-voice-id"
+      "ttsVoiceId": "eda5bbff-1ff1-4886-8ef1-4e69a77640a0"
     }
   }'
+
+# 使用默认配置的例子
+AUDIO_BASE64=$(base64 -i input-audio.wav | tr -d '\n')
+echo "{\"audio\": \"$AUDIO_BASE64\"}" > temp_audio.json
+
+curl -X POST http://localhost:3000/api/voice-assistant \
+    -H "Content-Type: application/json" \
+    --data @temp_audio.json | ffmpeg -f f32le -ar 44100 -ac 1 -i pipe: output4.wav
+
+rm temp_audio.json
 ```
 
 ### 使用 cURL 发送 GET 请求
