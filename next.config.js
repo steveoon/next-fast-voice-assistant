@@ -10,6 +10,12 @@ const nextConfig = {
 
     return config;
   },
+  env: {
+    DEEPGRAM_API_KEY: process.env.DEEPGRAM_API_KEY,
+    CEREBRAS_API_KEY: process.env.CEREBRAS_API_KEY,
+    CARTESIA_API_KEY: process.env.CARTESIA_API_KEY,
+    GROQ_API_KEY: process.env.GROQ_API_KEY,
+  },
 };
 
 module.exports = nextConfig;
